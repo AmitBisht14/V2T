@@ -18,6 +18,7 @@ V2T/
 │   ├── Project_structure.md   # This document
 │   ├── Implementation.md      # Development guidelines
 │   ├── UI_UX_doc.md          # Interface specifications
+│   ├── Task_breakdown.md     # Detailed development tasks and phases
 │   └── Bug_tracking.md       # Issue management process
 ├── src/                       # Source code directory
 │   ├── main.py               # Application entry point

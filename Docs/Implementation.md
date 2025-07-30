@@ -395,6 +395,253 @@ class AudioProcessor:
 - [ ] Single responsibility principle followed
 - [ ] Open/closed principle respected
 
+## 12. Git Strategy and Commit Guidelines
+
+### 12.1 Commit Message Format
+
+#### 12.1.1 Conventional Commits Standard
+```
+<type>(<scope>): <description>
+
+[optional body]
+
+[optional footer(s)]
+```
+
+#### 12.1.2 Commit Types
+- **feat**: New feature implementation
+- **fix**: Bug fixes
+- **docs**: Documentation changes
+- **style**: Code formatting (no logic changes)
+- **refactor**: Code restructuring (no feature changes)
+- **test**: Adding or updating tests
+- **chore**: Build process, dependencies, or tooling
+
+#### 12.1.3 Scope Examples
+- **audio**: Audio recording/processing functionality
+- **api**: OpenAI API integrations
+- **gui**: User interface components
+- **config**: Configuration management
+- **utils**: Utility functions
+- **tests**: Test-related changes
+
+#### 12.1.4 Example Commit Messages
+```bash
+# Good examples
+feat(audio): implement start/stop recording functionality
+fix(api): handle Whisper API timeout errors
+docs(readme): add installation instructions
+refactor(gui): extract button components to separate files
+test(audio): add unit tests for recorder module
+
+# Bad examples
+fix: stuff
+update code
+working on gui
+```
+
+### 12.2 Branch Strategy
+
+#### 12.2.1 Branch Naming Convention
+```
+<type>/<scope>-<short-description>
+```
+
+Examples:
+```bash
+feature/audio-recording
+fix/api-timeout-handling
+docs/implementation-guidelines
+refactor/gui-components
+```
+
+#### 12.2.2 Branch Types
+- **feature/**: New feature development
+- **fix/**: Bug fixes
+- **hotfix/**: Critical production fixes
+- **docs/**: Documentation updates
+- **refactor/**: Code restructuring
+- **experiment/**: Experimental work
+
+#### 12.2.3 Branch Lifecycle
+1. **Create**: Branch from `main` for new work
+2. **Develop**: Make commits following message conventions
+3. **Test**: Ensure all tests pass before merge
+4. **Review**: Self-review changes against checklist
+5. **Merge**: Merge back to `main` when complete
+6. **Cleanup**: Delete feature branch after merge
+
+### 12.3 Development Phase Integration
+
+#### 12.3.1 Phase-Based Commits
+Align commits with Task_breakdown.md phases:
+
+```bash
+# Phase 1: Foundation Setup
+feat(config): implement configuration management system
+feat(utils): add custom exception classes
+feat(logging): set up rotating file logger
+
+# Phase 2: Audio Processing
+feat(audio): implement PyAudio recorder class
+feat(audio): add audio device detection
+fix(audio): handle microphone permission errors
+
+# Phase 3: API Integration
+feat(api): implement Whisper API client
+feat(api): add GPT text cleanup integration
+fix(api): handle rate limiting with exponential backoff
+
+# Phase 4: GUI Implementation
+feat(gui): create main application window
+feat(gui): implement START/STOP button controls
+feat(gui): add text display widget with editing
+
+# Phase 5: Integration
+feat(app): integrate all components in main.py
+feat(controller): implement MVC coordination logic
+fix(threading): resolve UI blocking during API calls
+```
+
+#### 12.3.2 Task Completion Commits
+When completing tasks from Task_breakdown.md:
+```bash
+# Reference specific tasks
+feat(audio): implement start_recording() method
+
+Completes task from Phase 2.1:
+- [x] Implement start_recording() method
+- Includes error handling for device access
+- Adds logging for debugging
+- Unit tests included
+
+Closes #12
+```
+
+### 12.4 Commit Frequency Guidelines
+
+#### 12.4.1 When to Commit
+- **Logical Units**: Complete a specific function or fix
+- **Working State**: Code compiles and basic functionality works
+- **Before Breaks**: Before lunch, end of day, or switching tasks
+- **Milestone Completion**: When finishing a task from Task_breakdown.md
+
+#### 12.4.2 Commit Size Guidelines
+- **Small Commits**: 1-50 lines changed (preferred)
+- **Medium Commits**: 50-200 lines changed (acceptable)
+- **Large Commits**: 200+ lines changed (avoid, break down)
+
+#### 12.4.3 What NOT to Commit
+- **Broken Code**: Code that doesn't compile or run
+- **Debug Code**: Temporary print statements or debug flags
+- **Secrets**: API keys, passwords, or sensitive data
+- **Generated Files**: Build artifacts, compiled files
+- **IDE Files**: Editor-specific configuration files
+
+### 12.5 Pre-Commit Checklist
+
+#### 12.5.1 Code Quality Checks
+- [ ] Code follows PEP 8 standards
+- [ ] All functions have type hints and docstrings
+- [ ] No hardcoded secrets or API keys
+- [ ] Error handling implemented
+- [ ] Logging added where appropriate
+- [ ] Code is properly formatted
+
+#### 12.5.2 Functional Checks
+- [ ] Code runs without errors
+- [ ] New functionality works as expected
+- [ ] Existing functionality not broken
+- [ ] Unit tests pass (if applicable)
+- [ ] Integration tests pass (if applicable)
+
+#### 12.5.3 Documentation Checks
+- [ ] Code changes documented in docstrings
+- [ ] README updated if needed
+- [ ] Task_breakdown.md updated with progress
+- [ ] Comments added for complex logic
+
+### 12.6 Integration with Development Workflow
+
+#### 12.6.1 Daily Development Pattern
+```bash
+# Start of day
+git pull origin main
+git checkout -b feature/new-functionality
+
+# During development
+# ... make changes ...
+git add .
+git commit -m "feat(scope): implement specific functionality"
+
+# ... more changes ...
+git commit -m "test(scope): add unit tests for new functionality"
+
+# End of task/day
+git push origin feature/new-functionality
+
+# When feature complete
+git checkout main
+git merge feature/new-functionality
+git push origin main
+git branch -d feature/new-functionality
+```
+
+#### 12.6.2 Phase Completion Strategy
+At the end of each development phase:
+```bash
+# Create phase completion commit
+git add .
+git commit -m "feat(phase-N): complete Phase N implementation
+
+Phase N: [Phase Name] - COMPLETE
+✅ All tasks in phase completed
+✅ Unit tests passing
+✅ Integration tests successful
+✅ Code review completed
+✅ Documentation updated
+
+Next: Begin Phase N+1"
+
+# Tag major milestones
+git tag -a v0.N.0 -m "Phase N: [Phase Name] Complete"
+git push origin v0.N.0
+```
+
+### 12.7 Emergency Procedures
+
+#### 12.7.1 Hotfix Process
+For critical issues in main branch:
+```bash
+git checkout main
+git checkout -b hotfix/critical-issue-description
+# ... make minimal fix ...
+git commit -m "hotfix(scope): fix critical issue description"
+git checkout main
+git merge hotfix/critical-issue-description
+git push origin main
+git branch -d hotfix/critical-issue-description
+```
+
+#### 12.7.2 Rollback Strategy
+If a commit breaks functionality:
+```bash
+# Identify problematic commit
+git log --oneline
+
+# Revert specific commit
+git revert <commit-hash>
+git commit -m "revert: rollback problematic change
+
+This reverts commit <commit-hash> due to:
+- [specific issue description]
+- [impact on functionality]"
+```
+
+---
+
+*This Git strategy ensures consistent, traceable, and professional version control practices aligned with the V2T development phases.*
+
 ---
 
 *These implementation guidelines ensure consistent, maintainable, and secure code development for the V2T project.*

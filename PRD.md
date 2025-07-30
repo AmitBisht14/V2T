@@ -206,3 +206,25 @@ This product is a Windows-based desktop application designed to convert spoken i
 - **Distribution**: Direct download (no installer required)
 - **Dependencies**: All dependencies bundled in executable
 - **Size Target**: <50MB total package size
+
+## 12. Context Engineering Guidelines
+
+### 12.1 For Claude Interactions
+- Always reference this PRD when making architectural decisions
+- Maintain consistency with defined features and requirements
+- Consider user experience requirements in all implementations
+- Follow the technical stack specified in section 11.1
+- **Use Task_breakdown.md for detailed implementation tasks and development phases**
+
+### 12.2 Development Principles
+- **User-Centric**: Every feature should solve a real user problem
+- **Scalable**: Design for growth from day one
+- **Secure**: Privacy and security by design
+- **Maintainable**: Clean, documented, testable code
+
+### 12.3 Implementation Roadmap
+- **High-Level Requirements**: Defined in this PRD document
+- **Detailed Tasks**: See `Docs/Task_breakdown.md` for phase-by-phase implementation
+- **Coding Standards**: Follow `Docs/Implementation.md` guidelines
+- **File Organization**: Use `Docs/Project_structure.md` for placement decisions
+- **UI Specifications**: Reference `Docs/UI_UX_doc.md` for interface details

@@ -64,3 +64,10 @@
 - Maintain the architecture patterns from PRD section 11.2
 - Respect the scope limitations defined in PRD section 8
 - Prioritize features based on PRD success criteria (section 9)
+
+## Development Task Management
+### When Helping with Implementation
+- **Primary Reference**: Use [Docs/Task_breakdown.md](cci:7://file:///Users/amitbisht/Projects/ProductivityTools/V2T/Docs/Task_breakdown.md:0:0-0:0) for all development tasks
+- **Phase Context**: Identify current development phase before starting work
+- **Task Verification**: Ensure task is listed in breakdown before implementing
+- **Progress Tracking**: Update task completion status after implementation
