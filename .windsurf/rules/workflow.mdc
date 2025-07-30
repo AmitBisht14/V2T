@@ -71,3 +71,18 @@
 - **Phase Context**: Identify current development phase before starting work
 - **Task Verification**: Ensure task is listed in breakdown before implementing
 - **Progress Tracking**: Update task completion status after implementation
+
+## 🚨 **Critical Rules**
+### Never Skip These Steps
+1. **Task Tracking**: Every completed task MUST be marked in Task_breakdown.md
+2. **Separate Commits**: Implementation and tracking require separate commits
+3. **Accurate Timestamps**: Use actual completion date, not commit date
+4. **Consistent Format**: Follow exact format specifications
+5. **Phase Completion**: Only mark phases complete when ALL subtasks done
+
+### Quality Checkpoints
+- Code compiles and runs without errors
+- Basic functionality works as expected
+- Task matches specification in Task_breakdown.md
+- Commit message follows conventional format
+- Task_breakdown.md is properly updated
