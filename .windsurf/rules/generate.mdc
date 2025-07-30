@@ -1,0 +1,111 @@
+# V2T Code Generation Rules
+
+## Project Context
+- This is a Windows desktop application for voice-to-text conversion
+- Built with Python + Tkinter for simplicity and portability
+- Uses OpenAI Whisper API for transcription and GPT for text cleanup
+- Target: Single developer use, no multi-user features needed
+
+## Technology Stack Requirements
+- **Language**: Python 3.8+
+- **GUI Framework**: Tkinter (built-in, lightweight)
+- **Audio**: PyAudio for microphone capture
+- **APIs**: OpenAI Whisper + GPT APIs
+- **Packaging**: PyInstaller for Windows executable
+
+## Code Generation Guidelines
+
+### Python Code Standards
+- Follow PEP 8 style guidelines
+- Use type hints for function parameters and return values
+- Include comprehensive docstrings for all functions and classes
+- Use meaningful variable and function names
+- Keep functions focused and under 50 lines when possible
+
+### Architecture Patterns
+- Separate GUI logic from business logic
+- Use dependency injection for API clients
+- Implement proper error handling with try/catch blocks
+- Use threading for non-blocking UI operations
+- Follow MVC pattern: Model (API), View (GUI), Controller (Logic)
+
+### Security Requirements
+- Never hardcode API keys in source code
+- Use environment variables or secure config files
+- Validate all user inputs and API responses
+- Implement proper error messages without exposing sensitive data
+
+### Performance Guidelines
+- Use async/threading for API calls to keep UI responsive
+- Implement proper cleanup of temporary files
+- Optimize audio file size before API upload
+- Use efficient data structures and avoid memory leaks
+
+## File Organization
+```
+src/
+├── main.py              # Entry point
+├── gui/
+│   ├── __init__.py
+│   ├── main_window.py   # Main GUI components
+│   └── widgets.py       # Custom UI widgets
+├── audio/
+│   ├── __init__.py
+│   ├── recorder.py      # Audio capture logic
+│   └── processor.py     # Audio file handling
+├── api/
+│   ├── __init__.py
+│   ├── whisper_client.py # Whisper API integration
+│   └── gpt_client.py     # GPT API integration
+├── utils/
+│   ├── __init__.py
+│   ├── config.py        # Configuration management
+│   └── helpers.py       # Utility functions
+└── tests/
+    ├── __init__.py
+    ├── test_audio.py
+    ├── test_api.py
+    └── test_gui.py
+```
+
+## Code Examples to Follow
+
+### Error Handling Pattern
+```python
+try:
+    result = api_call()
+    return result
+except APIError as e:
+    logger.error(f"API error: {e}")
+    show_user_message("Service temporarily unavailable")
+except NetworkError as e:
+    logger.error(f"Network error: {e}")
+    show_user_message("Please check your internet connection")
+```
+
+### Threading Pattern
+```python
+def process_audio_async(self, audio_file):
+    def worker():
+        try:
+            # API processing logic
+            pass
+        except Exception as e:
+            self.handle_error(e)
+    
+    thread = threading.Thread(target=worker)
+    thread.daemon = True
+    thread.start()
+```
+
+## Testing Requirements
+- Write unit tests for all business logic
+- Mock API calls in tests
+- Test error handling scenarios
+- Include integration tests for audio capture
+
+## Documentation Standards
+- Include README.md with setup instructions
+- Document all configuration options
+- Provide troubleshooting guide
+- Include API key setup instructions

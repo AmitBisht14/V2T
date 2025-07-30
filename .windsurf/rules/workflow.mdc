@@ -1,0 +1,66 @@
+# V2T Development Workflow Rules
+
+## Development Process
+
+### Before Starting Development
+1. Always reference the PRD.md for feature requirements
+2. Check existing code structure before adding new components
+3. Ensure development environment is properly set up
+4. Verify API keys are configured correctly
+
+### Code Development Workflow
+1. **Plan**: Break down features into small, testable components
+2. **Implement**: Write code following the generation rules
+3. **Test**: Create unit tests for new functionality
+4. **Document**: Update relevant documentation
+5. **Review**: Check code against PRD requirements
+
+### Git Workflow
+- Use descriptive commit messages
+- Commit frequently with small, focused changes
+- Keep main branch stable and working
+- Use feature branches for experimental work
+
+## Claude Interaction Guidelines
+
+### When Helping with Code
+- Always reference the PRD.md for context
+- Follow the technical implementation guidelines in section 11
+- Maintain consistency with existing code patterns
+- Consider performance and security implications
+
+### Problem-Solving Approach
+1. Understand the specific requirement from PRD
+2. Check if similar functionality already exists
+3. Propose solution that fits the architecture
+4. Consider error handling and edge cases
+5. Suggest testing approach
+
+### Code Review Checklist
+- [ ] Follows Python PEP 8 standards
+- [ ] Includes proper error handling
+- [ ] Has appropriate type hints
+- [ ] Includes docstrings
+- [ ] Fits the defined architecture
+- [ ] Maintains security best practices
+- [ ] Is properly tested
+
+## Project Priorities
+1. **Core Functionality**: Audio recording → Transcription → Text cleanup
+2. **User Experience**: Simple, responsive interface
+3. **Reliability**: Robust error handling and recovery
+4. **Performance**: Fast processing and responsive UI
+5. **Security**: Safe API key handling and data privacy
+
+## Communication Standards
+- Provide clear explanations for technical decisions
+- Reference specific PRD sections when relevant
+- Suggest improvements that align with project goals
+- Ask clarifying questions when requirements are unclear
+
+## Context Engineering Rules
+- Always reference PRD.md as the single source of truth
+- Follow the technical stack defined in PRD section 11.1
+- Maintain the architecture patterns from PRD section 11.2
+- Respect the scope limitations defined in PRD section 8
+- Prioritize features based on PRD success criteria (section 9)
