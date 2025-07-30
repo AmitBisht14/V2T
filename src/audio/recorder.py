@@ -395,6 +395,216 @@ class AudioRecorder:
             if self.on_recording_error:
                 self.on_recording_error(e)
     
+    def stop_recording(self, save_file: bool = True) -> Optional[str]:
+        """
+        Stop audio recording and optionally save to file.
+        
+        Args:
+            save_file: Whether to save the recorded audio to file
+            
+        Returns:
+            Path to saved file if save_file=True, None otherwise
+            
+        Raises:
+            AudioError: If no recording is in progress
+            FileError: If file saving fails
+        """
+        if not self.state.is_recording:
+            raise AudioError(
+                "No recording in progress",
+                error_code="NO_RECORDING_IN_PROGRESS"
+            )
+        
+        try:
+            logger.info("Stopping recording...")
+            
+            # Signal the recording thread to stop
+            self._stop_event.set()
+            self.state.is_recording = False
+            
+            # Stop and close the audio stream
+            if self.stream:
+                if self.stream.is_active():
+                    self.stream.stop_stream()
+                self.stream.close()
+                self.stream = None
+            
+            # Wait for recording thread to finish
+            if self.recording_thread and self.recording_thread.is_alive():
+                self.recording_thread.join(timeout=5.0)
+                if self.recording_thread.is_alive():
+                    logger.warning("Recording thread did not finish within timeout")
+            
+            # Update final duration
+            if self.state.start_time:
+                self.state.duration = time.time() - self.state.start_time
+            
+            saved_file = None
+            if save_file and self.audio_frames:
+                saved_file = self._save_recording()
+            
+            logger.info(f"Recording stopped. Duration: {self.state.duration:.2f}s, Frames: {self.state.frames_recorded}")
+            
+            # Trigger callback
+            if self.on_recording_stopped:
+                self.on_recording_stopped(saved_file, self.state.duration)
+            
+            return saved_file
+            
+        except Exception as e:
+            logger.error(f"Error stopping recording: {e}")
+            if isinstance(e, (AudioError, FileError)):
+                raise
+            
+            raise AudioError(
+                f"Failed to stop recording: {str(e)}",
+                error_code="RECORDING_STOP_FAILED"
+            ) from e
+        
+        finally:
+            # Ensure state is reset
+            self.state.is_recording = False
+    
+    def _save_recording(self) -> str:
+        """
+        Save the recorded audio frames to a WAV file.
+        
+        Returns:
+            Path to the saved file
+            
+        Raises:
+            FileError: If file saving fails
+        """
+        if not self.audio_frames:
+            raise FileError(
+                "No audio data to save",
+                error_code="NO_AUDIO_DATA"
+            )
+        
+        if not self.state.file_path:
+            raise FileError(
+                "No output file path specified",
+                error_code="NO_OUTPUT_PATH"
+            )
+        
+        try:
+            # Ensure output directory exists
+            output_path = Path(self.state.file_path)
+            output_path.parent.mkdir(parents=True, exist_ok=True)
+            
+            # Save audio data as WAV file
+            with wave.open(str(output_path), 'wb') as wav_file:
+                wav_file.setnchannels(self.config.audio.channels)
+                wav_file.setsampwidth(self.pyaudio_instance.get_sample_size(pyaudio.paInt16))
+                wav_file.setframerate(self.config.audio.sample_rate)
+                wav_file.writeframes(b''.join(self.audio_frames))
+            
+            # Verify file was created and has content
+            if not output_path.exists() or output_path.stat().st_size == 0:
+                raise FileError(
+                    f"Failed to create audio file: {output_path}",
+                    error_code="FILE_CREATION_FAILED",
+                    file_path=str(output_path)
+                )
+            
+            file_size = output_path.stat().st_size
+            logger.info(f"Audio saved: {output_path} ({file_size} bytes)")
+            
+            return str(output_path)
+            
+        except Exception as e:
+            logger.error(f"Failed to save recording: {e}")
+            if isinstance(e, FileError):
+                raise
+            
+            raise FileError(
+                f"Failed to save recording to {self.state.file_path}: {str(e)}",
+                error_code="FILE_SAVE_FAILED",
+                file_path=self.state.file_path
+            ) from e
+    
+    def pause_recording(self) -> None:
+        """
+        Pause the current recording.
+        
+        Raises:
+            AudioError: If no recording is in progress or already paused
+        """
+        if not self.state.is_recording:
+            raise AudioError(
+                "No recording in progress",
+                error_code="NO_RECORDING_IN_PROGRESS"
+            )
+        
+        if self.state.is_paused:
+            raise AudioError(
+                "Recording is already paused",
+                error_code="RECORDING_ALREADY_PAUSED"
+            )
+        
+        try:
+            if self.stream and self.stream.is_active():
+                self.stream.stop_stream()
+            
+            self.state.is_paused = True
+            logger.info("Recording paused")
+            
+        except Exception as e:
+            logger.error(f"Failed to pause recording: {e}")
+            raise AudioError(
+                f"Failed to pause recording: {str(e)}",
+                error_code="RECORDING_PAUSE_FAILED"
+            ) from e
+    
+    def resume_recording(self) -> None:
+        """
+        Resume a paused recording.
+        
+        Raises:
+            AudioError: If no recording is in progress or not paused
+        """
+        if not self.state.is_recording:
+            raise AudioError(
+                "No recording in progress",
+                error_code="NO_RECORDING_IN_PROGRESS"
+            )
+        
+        if not self.state.is_paused:
+            raise AudioError(
+                "Recording is not paused",
+                error_code="RECORDING_NOT_PAUSED"
+            )
+        
+        try:
+            if self.stream and not self.stream.is_active():
+                self.stream.start_stream()
+            
+            self.state.is_paused = False
+            logger.info("Recording resumed")
+            
+        except Exception as e:
+            logger.error(f"Failed to resume recording: {e}")
+            raise AudioError(
+                f"Failed to resume recording: {str(e)}",
+                error_code="RECORDING_RESUME_FAILED"
+            ) from e
+    
+    def get_recording_info(self) -> dict:
+        """
+        Get information about the current recording state.
+        
+        Returns:
+            Dictionary containing recording information
+        """
+        return {
+            'is_recording': self.state.is_recording,
+            'is_paused': self.state.is_paused,
+            'duration': self.state.duration,
+            'frames_recorded': self.state.frames_recorded,
+            'file_path': self.state.file_path,
+            'start_time': self.state.start_time
+        }
+    
     def __del__(self):
         """Destructor to ensure cleanup."""
         self.cleanup()
