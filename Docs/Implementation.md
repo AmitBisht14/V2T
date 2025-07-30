@@ -644,4 +644,102 @@ This reverts commit <commit-hash> due to:
 
 ---
 
+## 13. Task Completion Tracking
+
+### 13.1 Mandatory Workflow for Task Completion
+
+**IMPORTANT**: Every completed task MUST be tracked in the Task_breakdown.md document to maintain project visibility and progress monitoring.
+
+#### 13.1.1 Task Completion Process
+
+For every development task, follow this mandatory 4-step process:
+
+1. **Implement the Task**
+   - Complete the implementation according to specifications
+   - Follow all coding standards and patterns from this document
+   - Ensure code is tested and working
+
+2. **Commit the Implementation**
+   - Use conventional commit format (Section 12.1)
+   - Include reference to Task_breakdown.md task
+   - Example: `feat(audio): implement microphone access`
+
+3. **Update Task_breakdown.md**
+   - Change `[ ]` to `[x]` for completed task
+   - Add completion timestamp: `*(Completed: YYYY-MM-DD)*`
+   - Mark parent sections as completed when all subtasks done
+   - Update document version number
+
+4. **Commit the Progress Tracking**
+   - Separate commit for documentation updates
+   - Use `docs(tracking):` prefix for tracking commits
+   - Example: `docs(tracking): mark audio capture tasks as completed`
+
+#### 13.1.2 Task Completion Format
+
+**Before (Incomplete Task):**
+```markdown
+- [ ] Implement start_recording() method
+```
+
+**After (Completed Task):**
+```markdown
+- [x] Implement start_recording() method *(Completed: 2025-07-30)*
+```
+
+**Phase Completion:**
+```markdown
+### Phase 2: Audio Processing Module ✅ **COMPLETED**
+**Goal**: Implement audio capture and processing functionality
+**Completed**: 2025-07-30 23:45
+```
+
+#### 13.1.3 Benefits of Task Tracking
+
+- **Progress Visibility**: Clear view of what's done vs. remaining
+- **Time Tracking**: Historical record of completion dates
+- **Project Management**: Easy status reporting and planning
+- **Team Coordination**: Shared understanding of progress
+- **Documentation**: Permanent record of development timeline
+
+#### 13.1.4 Tracking Rules
+
+1. **Never skip tracking**: Every task completion must be documented
+2. **Immediate updates**: Update Task_breakdown.md right after implementation
+3. **Accurate timestamps**: Use actual completion date, not commit date
+4. **Consistent format**: Follow the exact format shown above
+5. **Phase completion**: Mark phases complete only when ALL subtasks done
+
+#### 13.1.5 Claude/AI Assistant Guidelines
+
+When working with AI assistants:
+- AI must update Task_breakdown.md after each completed task
+- AI should commit both implementation and tracking separately
+- AI must verify task exists in breakdown before implementing
+- AI should reference task completion in commit messages
+
+### 13.2 Progress Reporting
+
+#### 13.2.1 Daily Progress Summary
+
+At end of each development session, create summary:
+- Tasks completed today
+- Current phase progress percentage
+- Next tasks planned
+- Any blockers encountered
+
+#### 13.2.2 Phase Completion Celebration
+
+When a phase is 100% complete:
+- Update phase header with ✅ **COMPLETED**
+- Add completion timestamp
+- Create summary commit highlighting phase completion
+- Consider creating a git tag for the phase milestone
+
+---
+
+*This task completion tracking ensures professional project management and maintains clear development progress visibility.*
+
+---
+
 *These implementation guidelines ensure consistent, maintainable, and secure code development for the V2T project.*
