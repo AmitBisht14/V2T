@@ -31,7 +31,7 @@
 #### 2.1 Audio Capture (`src/audio/recorder.py`)
 - [x] Initialize PyAudio for microphone access *(Completed: 2025-07-30)*
 - [x] Implement start_recording() method *(Completed: 2025-07-30)*
-- [ ] Implement stop_recording() method
+- [x] Implement stop_recording() method *(Completed: 2025-07-30)*
 - [ ] Add audio device detection and selection
 - [ ] Handle microphone permissions and errors
 - [ ] Create temporary WAV file generation
