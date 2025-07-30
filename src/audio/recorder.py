@@ -239,6 +239,162 @@ class AudioRecorder:
         """Context manager exit."""
         self.cleanup()
     
+    def start_recording(self, output_file: Optional[str] = None) -> str:
+        """
+        Start audio recording from the microphone.
+        
+        Args:
+            output_file: Optional path for output file. If None, generates temp file.
+            
+        Returns:
+            Path to the recording file
+            
+        Raises:
+            AudioError: If recording is already in progress
+            MicrophoneError: If microphone access fails
+            FileError: If output file cannot be created
+        """
+        if self.state.is_recording:
+            raise AudioError(
+                "Recording is already in progress",
+                error_code="RECORDING_IN_PROGRESS"
+            )
+        
+        try:
+            # Initialize PyAudio if not already done
+            if self.pyaudio_instance is None:
+                self.initialize_pyaudio()
+            
+            # Generate output file path if not provided
+            if output_file is None:
+                output_file = self._generate_temp_filename()
+            
+            # Ensure output directory exists
+            output_path = Path(output_file)
+            output_path.parent.mkdir(parents=True, exist_ok=True)
+            
+            # Reset state
+            self.state = RecordingState(
+                is_recording=True,
+                start_time=time.time(),
+                file_path=str(output_path)
+            )
+            self.audio_frames = []
+            self._stop_event.clear()
+            
+            # Create audio stream
+            self.stream = self.pyaudio_instance.open(
+                format=pyaudio.paInt16,
+                channels=self.config.audio.channels,
+                rate=self.config.audio.sample_rate,
+                input=True,
+                input_device_index=self.device_index,
+                frames_per_buffer=self.config.audio.chunk_size,
+                start=False
+            )
+            
+            # Start recording thread
+            self.recording_thread = threading.Thread(
+                target=self._recording_worker,
+                daemon=True
+            )
+            self.recording_thread.start()
+            
+            # Start the stream
+            self.stream.start_stream()
+            
+            logger.info(f"Recording started: {output_file}")
+            
+            # Trigger callback
+            if self.on_recording_started:
+                self.on_recording_started(output_file)
+            
+            return str(output_path)
+            
+        except Exception as e:
+            # Reset state on error
+            self.state.is_recording = False
+            logger.error(f"Failed to start recording: {e}")
+            
+            if isinstance(e, (AudioError, MicrophoneError, FileError)):
+                raise
+            
+            raise MicrophoneError(
+                f"Failed to start recording: {str(e)}",
+                error_code="RECORDING_START_FAILED"
+            ) from e
+    
+    def _generate_temp_filename(self) -> str:
+        """
+        Generate a temporary filename for recording.
+        
+        Returns:
+            Path to temporary recording file
+        """
+        from ..utils.config import config_manager
+        
+        temp_dir = config_manager.create_temp_dir()
+        timestamp = int(time.time())
+        filename = f"recording_{timestamp}.wav"
+        return str(temp_dir / filename)
+    
+    def _recording_worker(self) -> None:
+        """
+        Worker thread for continuous audio recording.
+        
+        This method runs in a separate thread and continuously reads
+        audio data from the microphone stream.
+        """
+        try:
+            logger.debug("Recording worker thread started")
+            
+            while not self._stop_event.is_set() and self.state.is_recording:
+                try:
+                    # Check for maximum duration
+                    if self.state.start_time:
+                        elapsed = time.time() - self.state.start_time
+                        if elapsed >= self.config.audio.max_duration:
+                            logger.warning(f"Maximum recording duration reached: {self.config.audio.max_duration}s")
+                            break
+                    
+                    # Read audio data
+                    if self.stream and self.stream.is_active():
+                        try:
+                            data = self.stream.read(
+                                self.config.audio.chunk_size,
+                                exception_on_overflow=False
+                            )
+                            
+                            if data:
+                                self.audio_frames.append(data)
+                                self.state.frames_recorded += 1
+                                
+                                # Update duration
+                                if self.state.start_time:
+                                    self.state.duration = time.time() - self.state.start_time
+                                
+                                # Trigger data callback
+                                if self.on_audio_data:
+                                    self.on_audio_data(data)
+                                    
+                        except Exception as e:
+                            if not self._stop_event.is_set():
+                                logger.error(f"Error reading audio data: {e}")
+                                break
+                    else:
+                        break
+                        
+                except Exception as e:
+                    logger.error(f"Error in recording worker: {e}")
+                    break
+            
+            logger.debug("Recording worker thread finished")
+            
+        except Exception as e:
+            logger.error(f"Fatal error in recording worker: {e}")
+            if self.on_recording_error:
+                self.on_recording_error(e)
+    
     def __del__(self):
         """Destructor to ensure cleanup."""
         self.cleanup()
