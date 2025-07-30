@@ -29,7 +29,7 @@
 **Goal**: Implement audio capture and processing functionality
 
 #### 2.1 Audio Capture (`src/audio/recorder.py`)
-- [ ] Initialize PyAudio for microphone access
+- [x] Initialize PyAudio for microphone access *(Completed: 2025-07-30)*
 - [ ] Implement start_recording() method
 - [ ] Implement stop_recording() method
 - [ ] Add audio device detection and selection
